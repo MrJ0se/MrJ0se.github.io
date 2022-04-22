@@ -1,0 +1,1 @@
+define("D:/Projetos/NodeJS/blog/ts-out/common/so.404.js",["require","exports"],function(e,o){"use strict";Object.defineProperty(o,"__esModule",{value:!0}),o.pageInit=void 0,o.pageInit=function(){}});

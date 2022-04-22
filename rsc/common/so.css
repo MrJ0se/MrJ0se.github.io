@@ -1,0 +1,51 @@
+/*
+<div id="sows">
+	<div id="content">
+	</div>
+	<div id="fixed">
+	</div>
+	<div id="sobar">
+	</div>
+</div>
+<div id="soapp">
+</div>
+<div id="soapp_evervisible">
+</div>
+<div id="so_ctxmenu">
+</div>
+*/
+html,
+body,
+#sows,
+#soapp,
+#soapp_evervisible,
+#so_ctxmenu,
+#fixed {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#sows,
+#soapp,
+#soapp_evervisible,
+#so_ctxmenu,
+#fixed,
+#sobar {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+#sobar {
+  width: 100%;
+  height: 1.5em;
+}
+* {
+  box-sizing: border-box;
+}
+div {
+  border: 1px solid green;
+}
+.tdark #sobar {
+  background-color: #111;
+}
