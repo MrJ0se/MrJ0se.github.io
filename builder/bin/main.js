@@ -118,6 +118,7 @@ var inc_css = incs.filter((v) => v.lastIndexOf('.css') == v.length - 4)
 var inc_js = incs.filter((v) => v.lastIndexOf('.js') == v.length - 3)
     .sort((a, b) => b.indexOf('nano-amd.js') - a.indexOf('nano-amd.js'))
     .map((v) => `<script src="/${v.replace(/\\/g, '/')}"></script>`).join('');
+var htmlTemplate = HTMLMinify.minify(fs.readFileSync(path.resolve(__dirname, '../template.html'), 'utf-8'));
 ////////////////////
 // copy resources //
 ////////////////////
@@ -146,7 +147,10 @@ getFiles(base_src_rsc, base_src_rsc).forEach((v) => {
                 }
                 head = HTMLMinify.minify(head);
                 body = HTMLMinify.minify(body);
-                wfile(dst, `<html><head>${head}<meta charset="UTF-8">${inc_css}${inc_js}</head><body onload="defines_solve();" class="tdark"><!--page.body-->${body}<!--page./body--></body></head>`);
+                wfile(dst, htmlTemplate
+                    .replace('${head}', head)
+                    .replace('${inc}', inc_css + inc_js)
+                    .replace('${body}', `<!--page.body-->${body}<!--page./body-->`));
             }
             break;
         case '.css':
@@ -164,3 +168,5 @@ getFiles(base_src_rsc, base_src_rsc).forEach((v) => {
             fs.copyFileSync(path.resolve(base_src_rsc, v), path.resolve(base_dst, v));
     }
 });
+fs.copyFileSync(path.resolve(base_dst, '404/index.html'), path.resolve(base_dst, '404.html'));
+fs.copyFileSync(path.resolve(base_dst, '404/index.html'), path.resolve(base_dst, '../404.html'));

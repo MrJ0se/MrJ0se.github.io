@@ -6,7 +6,7 @@ export async function init () {
 	</div>
 	<div id="fixed">
 	</div>
-	<div id="sobar">
+	<div id="sobar"><div class="b_icon"></div>
 	</div>
 </div>
 <div id="soapp">

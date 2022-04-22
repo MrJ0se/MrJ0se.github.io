@@ -6,30 +6,30 @@ declare function require(package:string):any|undefined;
 // Preferences //
 /////////////////
 export enum SOLanguage {
-	EN,
+	EN = 1,
 	PT,
 }
 export enum SOTheme {
-	LIGHT,
+	LIGHT = 1,
 	DARK,
 }
 export enum SOAListStyle {
-	MINIMAL,
+	MINIMAL = 1,
 	BAR,
 	DOCK,
 }
 export enum SOGraphicsQuality {
-	MIN,
+	MIN = 1,
 	MID,
 	MAX,
 }
 export enum SOStyle {
-	DESKTOP,
+	DESKTOP = 1,
 	MOBILE,
 	TABLET,
 };
 export enum SOBool {
-	ON,
+	ON = 1,
 	OFF
 }
 export interface SOPrefs {
@@ -51,8 +51,8 @@ export type PrefChangCallBack = (vnew:SOPrefs, vall:SOPrefs)=>void;
 var prefCBs = new Map<number, PrefChangCallBack>();
 var prefCBID = 0;
 function prefChange(vnew:SOPrefs, vall:SOPrefs) {
+	[...prefCBs.values()].forEach((cb)=>cb(vnew, vall));
 }
-
 function prefAddEvent(cb:PrefChangCallBack):number {
 	prefCBID++;
 	prefCBs.set(prefCBID, cb);
@@ -89,6 +89,7 @@ function prefInvalid() {
 	if (prefLast.incookieTmp != raster.incookieTmp) vnew.incookieTmp = raster.incookieTmp;
 	prefLast = raster;
 	prefs.rastered = prefLast;
+
 	prefChange(vnew, raster);
 }
 
@@ -112,6 +113,48 @@ export var prefs = {
 	addEvent:prefAddEvent,
 	removeEvent:prefRemoveEvent,
 };
+prefs.addEvent((pref:SOPrefs)=>{
+	var classes = (document.body.getAttribute('class') || "").split(' ').filter((x)=>x!='');
+	if (pref.theme) {
+		classes = classes.filter((x)=>x.indexOf('so_t_')!=0);
+		classes.push('so_t_'+((pref.theme == SOTheme.LIGHT)?'light':'dark'));
+	}
+	if (pref.graphics) {
+		classes = classes.filter((x)=>x.indexOf('so_gl_')!=0);
+		switch (pref.graphics) {
+		case SOGraphicsQuality.MIN:
+			classes.push('so_gl_min');break;
+		case SOGraphicsQuality.MID:
+			classes.push('so_gl_mid');break;
+		case SOGraphicsQuality.MAX:
+			classes.push('so_gl_max');break;
+		}
+	}
+	if (pref.appListStyle) {
+		classes = classes.filter((x)=>x.indexOf('so_bs_')!=0);
+		switch (pref.appListStyle) {
+		case SOAListStyle.MINIMAL:
+			classes.push('so_bs_minimal');break;
+		case SOAListStyle.BAR:
+			classes.push('so_bs_bar');break;
+		case SOAListStyle.DOCK:
+			classes.push('so_bs_dock');break;
+		}
+	}
+	if (pref.style) {
+		classes = classes.filter((x)=>x.indexOf('so_ss_')!=0);
+		switch (pref.style) {
+		case SOStyle.DESKTOP:
+			classes.push('so_ss_desktop');break;
+		case SOStyle.MOBILE:
+			classes.push('so_ss_mobile');break;
+		case SOStyle.TABLET:
+			classes.push('so_ss_tablet');break;
+		}
+	}
+	console.log(classes);
+	document.body.setAttribute('class', classes.join(' '));
+});
 
 ////////////////////
 // prefs.defaults //
@@ -266,13 +309,17 @@ export async function runPage(pageURL:string):Promise<boolean> {
 	if (!await ensurePackage(packageURL))
 		return false;
 
-	var rt = require('../'+packageURL);
 	var ibody = page_html.txt.indexOf('<!--page.body-->');
 	ibody = ibody>=0?ibody+16:0;
 	var ebody = page_html.txt.indexOf('<!--page./body-->');
 	if (ebody < 0) ebody = page_html.txt.length;
 
-	await (rt.pageInit(page_html.txt.substring(ibody, ebody).trim()));
+	var rt = require('../'+packageURL);
+	if (rt)
+		await (rt.pageInit(page_html.txt.substring(ibody, ebody).trim()));
+	else
+		//@ts-ignore
+		document.getElementById('content').innerHTML = page_html.txt.substring(ibody, ebody).trim();
 	return true;
 }
 //> pageInit(body:string)
