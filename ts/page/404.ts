@@ -1,4 +1,4 @@
-export function pageInit() {
+export function pageInit(body:string) {
 	//@ts-ignore
-	document.getElementById('content').innerHTML="404 not found";
+	document.getElementById('content').innerHTML=body;
 }

@@ -239,17 +239,15 @@ export var currentPage:(AppInstance | null) = null;
 export var toolList:ToolRef[] = [
 
 ];
-function pageUrlToPackage(p:string):string {
-	p = p.trim();
-	while (p.indexOf('/') == 0) p = p.substr(1);
-	if (p == 'index.html')
-		p = '';
-	else if (p.length >= 11 && p.length-11 == p.lastIndexOf('/index.html'))
-		p = p.substring(0, p.length-11);
-	return p == ''?'page/index':'page/'+p.replace(/\//g,'_');
-}
 export async function runPage(pageURL:string):Promise<boolean> {
+	if (pageURL == 'index.html') pageURL = '';
+	{
+		var i = pageURL.lastIndexOf('index.html');
+		if (i >= 0 && i + 10 == pageURL.length)
+			pageURL = pageURL.substring(0, i);
+	}
 	while(pageURL.indexOf('/') == 0) pageURL = pageURL.substr(1);
+	while(pageURL.length > 0 && pageURL.lastIndexOf('/') == pageURL.length - 1) pageURL = pageURL.substr(0, pageURL.length - 1);
 
 	var packageURL = 'page/'+(pageURL==''?'index':pageURL).replace(/\//g,'_')+".js";
 	var dataURL = pageURL;
@@ -269,9 +267,12 @@ export async function runPage(pageURL:string):Promise<boolean> {
 		return false;
 
 	var rt = require('../'+packageURL);
-	console.log(packageURL);
-	console.log(rt);
-	await (rt.pageInit(page_html.txt));
+	var ibody = page_html.txt.indexOf('<!--page.body-->');
+	ibody = ibody>=0?ibody+16:0;
+	var ebody = page_html.txt.indexOf('<!--page./body-->');
+	if (ebody < 0) ebody = page_html.txt.length;
+
+	await (rt.pageInit(page_html.txt.substring(ibody, ebody).trim()));
 	return true;
 }
 //> pageInit(body:string)
@@ -288,12 +289,8 @@ async function main() {
 	var i = url.indexOf('/', url.indexOf('https://')==0?8:(url.indexOf('http://')==0?7:0));
 	url = i<0?'':url.substr(i);
 
-	var content = document.body.innerHTML.replace('<!--page.body-->', '').replace('<!--page./body-->', '');
-
 	initBase();
 
-	if (!(await runPage(url))) {
-		runPage('/404');
-	}
+	if (!(await runPage(url))) runPage('/404');
 }
 main();

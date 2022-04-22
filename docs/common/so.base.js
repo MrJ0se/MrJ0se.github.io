@@ -1,20 +1,4 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-define("common/so.base.js",["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.init = void 0;
-    function init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            document.body.innerHTML =
-                `
+var __awaiter=this&&this.__awaiter||function(i,v,r,c){return new(r=r||Promise)(function(e,n){function t(i){try{o(c.next(i))}catch(i){n(i)}}function d(i){try{o(c.throw(i))}catch(i){n(i)}}function o(i){var n;i.done?e(i.value):((n=i.value)instanceof r?n:new r(function(i){i(n)})).then(t,d)}o((c=c.apply(i,v||[])).next())})};define("common/so.base.js",["require","exports"],function(i,n){"use strict";Object.defineProperty(n,"__esModule",{value:!0}),n.init=void 0,n.init=function(){return __awaiter(this,void 0,void 0,function*(){document.body.innerHTML=`
 <div id="sows">
 	<div id="content">
 	</div>
@@ -29,8 +13,4 @@ define("common/so.base.js",["require", "exports"], function (require, exports) {
 </div>
 <div id="so_ctxmenu">
 </div>
-`;
-        });
-    }
-    exports.init = init;
-});
+`})}});

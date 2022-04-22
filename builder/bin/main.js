@@ -26,6 +26,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const uglify = __importStar(require("uglify-js"));
+const HTMLMinify = __importStar(require("html-minifier"));
+//@ts-ignore
+const minify = require('@node-minify/core');
+//@ts-ignore
+const cleanCSS = require('@node-minify/clean-css');
 var base_dst = path.resolve(__dirname, '../../docs');
 function _getFiles(folder, relative) {
     if (!fs.existsSync(folder))
@@ -53,8 +58,8 @@ function wfile(local, txt) {
     mkdir(path.resolve(local, '..'));
     fs.writeFileSync(local, txt);
 }
-function uglifyCode(code) {
-    if (false)
+function uglifyJS(code) {
+    if (true)
         return uglify.minify(code).code;
     else
         return code;
@@ -95,11 +100,11 @@ snippets.forEach((v) => {
 //uglify and save to output
 files_ts.forEach((v) => {
     console.log(path.resolve(base_dst, v.v));
-    wfile(path.resolve(base_dst, v.v), uglifyCode(v.ctt));
+    wfile(path.resolve(base_dst, v.v), uglifyJS(v.ctt));
 });
 //save snippets in a dedicated file
 if (snippets.length > 0) {
-    var ugout = uglifyCode(snippets.map((v) => v.txt).join(';\n'));
+    var ugout = uglifyJS(snippets.map((v) => v.txt).join(';\n'));
     wfile(path.resolve(base_dst, 'common/utils.js'), ugout);
 }
 ///////////////////////
@@ -126,7 +131,7 @@ getFiles(base_src_rsc, base_src_rsc).forEach((v) => {
             //ignore extensions
             break;
         case '.js':
-            fs.writeFileSync(path.resolve(base_dst, v), uglifyCode(fs.readFileSync(path.resolve(base_src_rsc, v), 'utf-8')));
+            fs.writeFileSync(path.resolve(base_dst, v), uglifyJS(fs.readFileSync(path.resolve(base_src_rsc, v), 'utf-8')));
             break;
         case '.html':
             {
@@ -139,8 +144,20 @@ getFiles(base_src_rsc, base_src_rsc).forEach((v) => {
                     dst = dst.replace('.html', '');
                     dst = path.resolve(dst, "index.html");
                 }
+                head = HTMLMinify.minify(head);
+                body = HTMLMinify.minify(body);
                 wfile(dst, `<html><head>${head}<meta charset="UTF-8">${inc_css}${inc_js}</head><body onload="defines_solve();" class="tdark"><!--page.body-->${body}<!--page./body--></body></head>`);
             }
+            break;
+        case '.css':
+            mkdir(path.resolve(base_dst, v, '..'));
+            minify({
+                compressor: cleanCSS,
+                input: path.resolve(base_src_rsc, v),
+                output: path.resolve(base_dst, v),
+                //@ts-ignore
+                callback: function (err, min) { }
+            });
             break;
         default:
             mkdir(path.resolve(base_dst, v, '..'));
