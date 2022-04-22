@@ -29,6 +29,12 @@ function wfile(local:string, txt:string) {
 	mkdir(path.resolve(local,'..'));
 	fs.writeFileSync(local, txt);
 }
+function uglifyCode(code:string):string {
+	if (false)
+		return uglify.minify(code).code
+	else
+		return code;
+}
 ////////////////
 // Typescript //
 ////////////////
@@ -65,14 +71,13 @@ snippets.forEach((v)=>{
 });
 //uglify and save to output
 files_ts.forEach((v)=>{
-	var ugout = uglify.minify(v.ctt);
 	console.log(path.resolve(base_dst, v.v));
-	wfile(path.resolve(base_dst, v.v), ugout.code);
+	wfile(path.resolve(base_dst, v.v), uglifyCode(v.ctt));
 });
 //save snippets in a dedicated file
 if (snippets.length > 0) {
-	var ugout = uglify.minify(snippets.map((v)=>v.txt).join(';\n'));
-	wfile(path.resolve(base_dst, 'common/utils.js'), ugout.code);
+	var ugout = uglifyCode(snippets.map((v)=>v.txt).join(';\n'));
+	wfile(path.resolve(base_dst, 'common/utils.js'), ugout);
 }
 ///////////////////////
 // build common html //
@@ -83,6 +88,7 @@ console.log(incs);
 var inc_css = incs.filter((v)=>v.lastIndexOf('.css') == v.length - 4)
 	.map((v)=>`<link rel="stylesheet" href="/${v.replace(/\\/g,'/')}">`).join('');
 var inc_js =  incs.filter((v)=>v.lastIndexOf('.js') == v.length - 3)
+	.sort((a,b)=>b.indexOf('nano-amd.js')-a.indexOf('nano-amd.js'))
 	.map((v)=>`<script src="/${v.replace(/\\/g,'/')}"></script>`).join('');
 
 ////////////////////
@@ -100,9 +106,9 @@ getFiles(base_src_rsc,base_src_rsc).forEach((v)=>{
 	case '.js':
 		fs.writeFileSync(
 			path.resolve(base_dst, v),
-			uglify.minify(
+			uglifyCode(
 				fs.readFileSync(path.resolve(base_src_rsc, v), 'utf-8')
-			).code
+			)
 		);
 		break;
 	case '.html': {
@@ -111,9 +117,11 @@ getFiles(base_src_rsc,base_src_rsc).forEach((v)=>{
 			var head = i>=0?txt.substr(0,i).trim():'';
 			var body = i>=0?txt.substr(i+11).trim():txt.trim();
 			var dst = path.resolve(base_dst, v);
-			if (path.basename(dst) != "index.html")
+			if (path.basename(dst) != "index.html") {
+				dst = dst.replace('.html','');
 				dst = path.resolve(dst,"index.html");
-			fs.writeFileSync(
+			}
+			wfile(
 				dst,
 				`<html><head>${head}<meta charset="UTF-8">${inc_css}${inc_js}</head><body onload="defines_solve();" class="tdark"><!--page.body-->${body}<!--page./body--></body></head>`
 			);

@@ -1,4 +1,20 @@
-var __awaiter=this&&this.__awaiter||function(i,v,r,s){return new(r=r||Promise)(function(e,t){function n(i){try{d(s.next(i))}catch(i){t(i)}}function o(i){try{d(s.throw(i))}catch(i){t(i)}}function d(i){var t;i.done?e(i.value):((t=i.value)instanceof r?t:new r(function(i){i(t)})).then(n,o)}d((s=s.apply(i,v||[])).next())})};define("D:/Projetos/NodeJS/blog/ts-out/common/so.base.js",["require","exports"],function(i,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.init=void 0,t.init=function(){return __awaiter(this,void 0,void 0,function*(){document.body.innerHTML=`
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+define("common/so.base.js",["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.init = void 0;
+    function init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            document.body.innerHTML =
+                `
 <div id="sows">
 	<div id="content">
 	</div>
@@ -13,4 +29,8 @@ var __awaiter=this&&this.__awaiter||function(i,v,r,s){return new(r=r||Promise)(f
 </div>
 <div id="so_ctxmenu">
 </div>
-`})}});
+`;
+        });
+    }
+    exports.init = init;
+});

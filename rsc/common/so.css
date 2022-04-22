@@ -17,10 +17,7 @@
 html,
 body,
 #sows,
-#soapp,
-#soapp_evervisible,
-#so_ctxmenu,
-#fixed {
+#soapp {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -30,7 +27,6 @@ body,
 #soapp,
 #soapp_evervisible,
 #so_ctxmenu,
-#fixed,
 #sobar {
   position: fixed;
   top: 0;
@@ -38,13 +34,21 @@ body,
 }
 #sobar {
   width: 100%;
-  height: 1.5em;
+  height: 2em;
+}
+#sows {
+  overflow-y: auto;
+}
+#sows #content {
+  padding: 3.5em 2em 2em 2em;
+}
+#sows #fixed {
+  top: 0;
+  left: 0;
+  position: absolute;
 }
 * {
   box-sizing: border-box;
-}
-div {
-  border: 1px solid green;
 }
 .tdark #sobar {
   background-color: #111;

@@ -1,4 +1,3 @@
-import {pageInit as run404} from './so.404';
 import {init as initBase} from './so.base';
 
 declare function require(package:string):any|undefined;
@@ -196,12 +195,14 @@ export async function ensurePackage (name:string):Promise<boolean> {
 	if (require('../'+name))
 		return true;
 
-	var file = await download('/'+name+".js");
+	var file = await download('/'+name);
 
 	if (file.code == 200) {
 		var ns = document.createElement('script');
 		ns.innerHTML = file.txt;
 		document.head.appendChild(ns);
+		//@ts-ignore Call amd to resolve
+		defines_solve();
 		return true;
 	}
 	return false;
@@ -239,7 +240,8 @@ export var toolList:ToolRef[] = [
 
 ];
 function pageUrlToPackage(p:string):string {
-	while (p.indexOf('/')) p = p.substr(1);
+	p = p.trim();
+	while (p.indexOf('/') == 0) p = p.substr(1);
 	if (p == 'index.html')
 		p = '';
 	else if (p.length >= 11 && p.length-11 == p.lastIndexOf('/index.html'))
@@ -247,7 +249,9 @@ function pageUrlToPackage(p:string):string {
 	return p == ''?'page/index':'page/'+p.replace(/\//g,'_');
 }
 export async function runPage(pageURL:string):Promise<boolean> {
-	var packageURL = 'page/'+pageURL.replace(/\//g,'_');
+	while(pageURL.indexOf('/') == 0) pageURL = pageURL.substr(1);
+
+	var packageURL = 'page/'+(pageURL==''?'index':pageURL).replace(/\//g,'_')+".js";
 	var dataURL = pageURL;
 	if (dataURL.indexOf('/') != 0)
 		dataURL = '/'+dataURL;
@@ -256,37 +260,40 @@ export async function runPage(pageURL:string):Promise<boolean> {
 			dataURL += '/';
 		dataURL += 'index.html';
 	}
+	console.log("[SO]runPage: "+pageURL + " => "+dataURL + " : "+packageURL);
 	var page_html = await download(dataURL, true);
 	if (page_html.code != 200)
 		return false;
 	var page_content = extractBodyFromPage(page_html.txt);
 	if (!await ensurePackage(packageURL))
 		return false;
-	return 
+
+	var rt = require('../'+packageURL);
+	console.log(packageURL);
+	console.log(rt);
+	await (rt.pageInit(page_html.txt));
+	return true;
 }
 //> pageInit(body:string)
 export async function runTool(packageURL:string):Promise<boolean> {
 	if (!await ensurePackage(packageURL))
 		return false;
-	return (await (require(packageURL).toolInit())) as boolean;
+	return (await (require('../'+packageURL).toolInit())) as boolean;
 }
-//> toolInit(pref?:ToolInitPref)
+//> toolInit(pref?:ToolInitPref):boolean
 
 // run current page with local body data or 404
 async function main() {
 	var url = window.location.href;
-	var i = url.indexOf('/', url.indexOf('https://')==0?8:0);
+	var i = url.indexOf('/', url.indexOf('https://')==0?8:(url.indexOf('http://')==0?7:0));
 	url = i<0?'':url.substr(i);
 
 	var content = document.body.innerHTML.replace('<!--page.body-->', '').replace('<!--page./body-->', '');
 
 	initBase();
 
-	var packageURL = pageUrlToPackage(url);
-	if ((await ensurePackage(packageURL)) && (await (require(packageURL).pageInit(content))) as boolean) {
-
-	} else {
-		run404();
+	if (!(await runPage(url))) {
+		runPage('/404');
 	}
 }
 main();
