@@ -43,8 +43,8 @@ var points = [];
 		for (let i = 0; i + 2 < frags.length; i+=3) {
 			let np = {
 				type:frags[i],
-				x:parseInt([i+1]),
-				y:parseInt(frags[i+2]),
+				x:parseInt(frags[i+1]),
+				y:-parseInt(frags[i+2]),
 			};
 			if (isNaN(np.x) || isNaN(np.y) || np.type.length != 1 || "aeif".indexOf(np.type) < 0) throw 'invalid';
 			points.push(np);
